@@ -755,10 +755,19 @@ function statusLabel(s){
   if(s==="sent_to_noest") return `<span class="pill sent">أُرسلت إلى Noest</span>`;
   return `<span class="pill pending">بانتظار التأكيد</span>`;
 }
+function orderProductLabel(o){
+  if(Array.isArray(o.items) && o.items.length){
+    return o.items.map(it=>{
+      const details = [it.color, it.size].filter(Boolean).join(" - ");
+      return `${it.name}${details?(" ("+details+")"):""} × ${it.qty}`;
+    }).join("، ");
+  }
+  return `${o.product?o.product.name:"-"} ${o.color?("- اللون: "+o.color):""} ${o.size?("- المقاس: "+o.size):""} × ${o.qty}`;
+}
 function orderCopyText(o){
   const lines = [
     `طلب lilya_brannd`,
-    `المنتج: ${o.product?o.product.name:"-"} ${o.color?("- اللون: "+o.color):""} ${o.size?("- المقاس: "+o.size):""} × ${o.qty}`,
+    Array.isArray(o.items) && o.items.length ? `المنتجات: ${orderProductLabel(o)}` : `المنتج: ${orderProductLabel(o)}`,
     `الاسم واللقب: ${o.name} ${o.lastname}`,
     `الهاتف: ${o.phone}`,
     `الولاية: ${o.wilaya} - البلدية: ${o.commune}`,
@@ -830,7 +839,7 @@ function renderOrders(){
         <td>${o.createdAt?new Date(o.createdAt).toLocaleString('fr-FR'):"—"}</td>
         <td>${o.name} ${o.lastname}</td>
         <td>${o.phone}</td>
-        <td>${o.product?o.product.name:"—"} ${o.color?("/ "+o.color):""} ${o.size?("/ "+o.size):""} × ${o.qty}</td>
+        <td>${(Array.isArray(o.items) && o.items.length) ? orderProductLabel(o) : (o.product?`${o.product.name} ${o.color?("/ "+o.color):""} ${o.size?("/ "+o.size):""} × ${o.qty}`:"—")}</td>
         <td>${o.wilaya} - ${o.commune}${o.office?`<div class="office-cell">${o.office.label}</div>`:""}</td>
         <td>${o.deliv}</td>
         <td>${Number(o.total||0).toLocaleString('fr-FR')} DA</td>
